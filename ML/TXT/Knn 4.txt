@@ -1,0 +1,48 @@
+# Libraries Imported
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import metrics
+
+# Load Dataset
+data = pd.read_csv("/home/kj-comp/aditya/archive(1)/diabetes.csv")
+
+# Dataset Information
+data.info()
+data.describe()
+data.columns
+data.isnull().sum()
+
+# Preparing Data
+data_x = data.drop(columns="Outcome", axis=1)
+data_y = data["Outcome"]
+
+# Scaling Data
+scale = StandardScaler()
+scaledx = scale.fit_transform(data_x)
+
+# Splitting Data into Training and Testing Sets
+x_train, x_test, y_train, y_test = train_test_split(scaledx, data_y, test_size=0.2)
+
+# K-Nearest Neighbors Classifier
+knn = KNeighborsClassifier(n_neighbors=7)
+knn.fit(x_train, y_train)
+
+# Predictions
+y_pred = knn.predict(x_test)
+
+# Evaluation Metrics
+cs = metrics.confusion_matrix(y_test, y_pred)
+ac = metrics.accuracy_score(y_test, y_pred)
+er = 1 - ac
+p = metrics.precision_score(y_test, y_pred)
+r = metrics.recall_score(y_test, y_pred)
+
+# Print Metrics
+print("Confusion Matrix is:\n", cs)
+print("Accuracy score is:", ac)
+print("Error rate is:", er)
+print("Precision:", p)
+print("Recall:", r)

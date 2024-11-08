@@ -1,0 +1,62 @@
+# Step 1: Import Libraries
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestRegressor
+
+# Step 2: Load Dataset and Display Initial Information
+data = pd.read_csv("/home/kj-comp/ML/Uber dataset/uber.csv")
+print("First few rows of the data:")
+print(data.head())
+print("\nData Info:")
+data.info()
+
+# Step 3: Convert Date Format and Check for Missing Values
+data["pickup_datetime"] = pd.to_datetime(data["pickup_datetime"])
+print("\nTotal Missing Values in Each Column:")
+print(data.isnull().sum())
+
+# Step 4: Drop Rows with Missing Values
+data.dropna(inplace=True)
+print("\nMissing Values After Dropping Rows:")
+print(data.isnull().sum())
+
+# Step 5: Prepare Predictor (x) and Target (y) Variables
+x = data.drop("fare_amount", axis=1)
+y = data["fare_amount"]
+x['pickup_datetime'] = pd.to_numeric(pd.to_datetime(x['pickup_datetime']))
+x = x.loc[:, x.columns.str.contains('^Unnamed')]
+
+# Step 6: Split Data into Training and Testing Sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+# Step 7: Create and Train Linear Regression Model
+lrmodel = LinearRegression()
+lrmodel.fit(x_train, y_train)
+pred = lrmodel.predict(x_test)
+
+# Step 8: Evaluate Linear Regression Model
+lrmodel_rmse = np.sqrt(mean_squared_error(pred, y_test))
+lrmodel_r2 = r2_score(y_test, pred)
+print("\nLinear Regression Model:")
+print(f"RMSE: {lrmodel_rmse}")
+print(f"R² Score: {lrmodel_r2}")
+
+# Step 9: Create and Train Random Forest Regression Model
+rfmodel = RandomForestRegressor(n_estimators=100, random_state=101)
+rfmodel.fit(x_train, y_train)
+rfmodel_pred = rfmodel.predict(x_test)
+
+# Step 10: Evaluate Random Forest Regression Model
+rfmodel_rmse = np.sqrt(mean_squared_error(rfmodel_pred, y_test))
+rfmodel_r2 = r2_score(y_test, rfmodel_pred)
+print("\nRandom Forest Regression Model:")
+print(f"RMSE: {rfmodel_rmse}")
+print(f"R² Score: {rfmodel_r2}")
+
+# Step 11: Summary of Model Performance
+print("\nSummary of Model Performance:")
+print(f"Linear Regression - RMSE: {lrmodel_rmse}, R²: {lrmodel_r2}")
+print(f"Random Forest Regression - RMSE: {rfmodel_rmse}, R²: {rfmodel_r2}")

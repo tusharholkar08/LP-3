@@ -1,0 +1,45 @@
+# Step 1: Import Libraries
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+# Step 2: Load Dataset and Display Initial Information
+data = pd.read_csv("/home/kj-comp/ML/Email dataset/emails.csv")
+data.info()  # Display basic info of data
+
+# Step 3: Check for Missing Values
+print("Total Missing Values in Each Column:")
+print(data.isnull().sum())
+
+# Step 4: Drop Unnecessary Column
+data.drop(columns=['Email No.'], inplace=True)
+
+# Step 5: Separate Features and Labels
+x = data.iloc[:, :-1]  # Features (all columns except last)
+y = data.iloc[:, -1]   # Labels (last column)
+print("Shape of Features and Labels:", x.shape, y.shape)
+
+# Step 6: Split Data into Training and Testing Sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.15, random_state=42)
+
+# Step 7: Define Machine Learning Models
+models = {
+    "Logistic Regression": LogisticRegression(solver='lbfgs', max_iter=2000),
+    "Linear SVM": LinearSVC(max_iter=3000),
+    "Polynomial SVM": SVC(kernel="poly", degree=2),
+    "RBF SVM": SVC(kernel="rbf"),
+    "Sigmoid SVM": SVC(kernel="sigmoid"),
+    "Multi-layer Perceptron Classifier": MLPClassifier(hidden_layer_sizes=[20, 20]),
+    "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=20)
+}
+
+# Step 8: Train Each Model and Calculate Accuracy
+for model_name, model in models.items():
+    y_pred = model.fit(x_train, y_train).predict(x_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f"Accuracy for {model_name} model is: {accuracy:.2%}")

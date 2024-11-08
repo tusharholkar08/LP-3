@@ -1,0 +1,49 @@
+# Libraries Imported
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load Dataset
+data = pd.read_csv("sales_data_sample.csv", encoding='latin1')
+data.head()
+
+# Checking for Null Values
+data.isnull().sum()
+
+# Dropping Unnecessary Columns
+data.drop(["ORDERNUMBER", "PRICEEACH", "ORDERDATE", "PHONE", "ADDRESSLINE1", "ADDRESSLINE2"], axis=1, inplace=True)
+
+# Dataset Information
+data.info()
+
+# Count Plot of 'STATUS'
+sns.countplot(data=data, x='STATUS')
+plt.show()
+
+# Distribution Plot of 'SALES' by 'PRODUCTLINE'
+sns.histplot(x='SALES', hue='PRODUCTLINE', data=data, element="poly")
+
+# Handling Categorical Features
+list_cat = data.select_dtypes(include=['object']).columns.tolist()
+data.drop_duplicates(inplace=True)
+data['SALES'] = data['SALES'].astype(int)
+
+# Encoding Categorical Variables
+from sklearn import preprocessing
+le = preprocessing.LabelEncoder()
+for i in list_cat:
+    data[i] = le.fit_transform(data[i])
+
+# Selecting Features for Clustering
+X = data[['SALES', 'PRODUCTCODE']]
+
+# K-Means Clustering
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=4, init='k-means++', random_state=0).fit(X)
+
+# Scatter Plot of Clusters with Centroids
+sns.scatterplot(data=X, x="SALES", y="PRODUCTCODE", hue=kmeans.labels_)
+plt.scatter(kmeans.cluster_centers_[:,0], kmeans.cluster_centers_[:,1], marker="X", c="r", s=80, label="centroids")
+plt.legend()
+plt.show()
